@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import axios from "axios";
 import Items from "./Items";
 import "./App.css";
@@ -42,10 +43,11 @@ function App() {
     setData(updateData);
 
     setOpenSelect(false);
+
+    setValueInput("");
   };
 
-  const removeItem = e => {
-    const itemValue = e.target.getAttribute("itemValue");
+  const removeItem = itemValue => {
     const updateCurrentValue = currentValue.filter(i => i !== itemValue);
 
     setCurrentValue(updateCurrentValue);
@@ -57,38 +59,44 @@ function App() {
 
   const changefilterData = e => {
     const { value } = e.target;
+    const valueUpperCase = value.toUpperCase();
 
     setValueInput(value);
 
-    const search = data.filter(i => i.includes(value));
+    const search = data.filter(i => i.toUpperCase().includes(valueUpperCase));
 
     setFiterData(search);
   };
 
+  const chaneOpenSelect = e => {
+    const { className, tagName } = e.target;
+
+    if (tagName !== "INPUT" && className !== "list_item") setOpenSelect(false);
+  };
+
   return (
-    <section>
+    <section onClick={chaneOpenSelect}>
       <div className="block">
-        <div className="wrap_current">
-          {currentValue &&
-            currentValue.map((currentItem, index) => (
-              <span key={index}>
-                {currentItem}
-                <span
-                  className="removeBtn"
-                  itemValue={currentItem}
-                  onClick={removeItem}
-                >
-                  X
-                </span>
-              </span>
-            ))}
-        </div>
-        <input
-          onFocus={() => setOpenSelect(true)}
-          onChange={changefilterData}
-          value={valueInput}
-          className="search"
-        />
+        <ItemsSearch>
+          <WrapSelectItems>
+            {currentValue &&
+              currentValue.map((currentItem, index) => (
+                <SelectItem key={index}>
+                  {currentItem}
+                  <RemoveButton onClick={() => removeItem(currentItem)}>
+                    X
+                  </RemoveButton>
+                </SelectItem>
+              ))}
+          </WrapSelectItems>
+          <Search
+            onFocus={() => setOpenSelect(true)}
+            onChange={changefilterData}
+            value={valueInput}
+            placeholder={currentValue.length === 0 && "Выберите язык"}
+            className="search"
+          />
+        </ItemsSearch>
         <div className="wrap_result">
           {isOpenSelect && data && (
             <Items
@@ -101,5 +109,37 @@ function App() {
     </section>
   );
 }
+
+const WrapSelectItems = styled.div``;
+
+const SelectItem = styled.span`
+  display: block;
+  float: left;
+  color: #282c34;
+`;
+
+const RemoveButton = styled.span`
+  color: brown;
+  font-size: 16px;
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 5px;
+  margin-right: 15px;
+  cursor: pointer;
+`;
+
+const Search = styled.input`
+  height: 30px;
+  border: 2px solid #6ea1f9;
+  float: left;
+  width: 170px;
+`;
+
+const ItemsSearch = styled.div`
+  width: 300px;
+  height: auto;
+  min-height: 20px;
+  background-color: #fff;
+`;
 
 export default App;
